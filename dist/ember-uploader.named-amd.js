@@ -115,6 +115,7 @@ define("ember-uploader/s3",
         }
 
         var settings = this.ajaxSignSettings(url, data, signRequestType);
+        var _this = this;
 
         return new Ember.RSVP.Promise(function(resolve, reject) {
           settings.success = function(data) {
@@ -125,18 +126,30 @@ define("ember-uploader/s3",
             Ember.run(null, reject, self.didError(jqXHR, responseText, errorThrown));
           };
 
+          // settings.beforeSend = function(xhr){
+          //   _this.get('session').authorize('authorizer:application', function(headerName, headerValue) {
+          //     xhr.setRequestHeader(headerName, headerValue);
+          //   });
+          // };
+
           Ember.$.ajax(settings);
         });
       },
 
       ajaxSignSettings: function(url, data, method) {
+        var _this = this;
         return {
           url: url,
           headers: get(this, 'headers'),
           type: method,
           contentType: 'application/json',
           dataType: 'json',
-          data: data
+          data: data,
+          beforeSend: function(xhr){
+            _this.get('session').authorize('authorizer:application', function(headerName, headerValue) {
+              xhr.setRequestHeader(headerName, headerValue);
+            });
+          }
         };
       },
 
@@ -276,7 +289,12 @@ define("ember-uploader/uploader",
             self.one('isAborting', function() { xhr.abort(); });
             return xhr;
           },
-          data: params
+          data: params,
+          beforeSend: function(xhr){
+            self.get('session').authorize('authorizer:application', function(headerName, headerValue) {
+              xhr.setRequestHeader(headerName, headerValue);
+            });
+          }
         };
       },
 
