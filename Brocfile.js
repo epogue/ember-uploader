@@ -55,12 +55,6 @@ var loaderJS = pickFiles('bower_components/loader.js', {
   destDir: '/'
 });
 
-var namedAMDBuild = concat(libFiles, {
-  inputFiles: ['**/*.js'],
-  separator: '\n',
-  outputFile: '/ember-uploader.named-amd.js'
-});
-
 var globalBuild = concat(merge([libFiles, loaderJS]), {
   inputFiles: ['loader.js', '**/*.js'],
   separator: '\n',
@@ -97,15 +91,12 @@ if (env !== 'production') {
   var trees = merge([
     testFiles,
     globalBuild,
-    namedAMDBuild,
     testRunner,
     bower
   ]);
 } else {
-  var minifiedAMD = minify(namedAMDBuild, 'ember-uploader.named-amd');
   var minifiedGlobals = minify(globalBuild, 'ember-uploader');
   var trees = merge([
-    minifiedAMD,
     minifiedGlobals
   ]);
 }
